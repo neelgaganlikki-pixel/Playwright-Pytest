@@ -4,6 +4,32 @@ pipeline {
     environment {
         PYTHON = 'C:\\Users\\NEELGAGAN B R\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
         PYTHONUNBUFFERED = '1'
+
+        TEST_ENV = 'dev'
+
+        DEV_BASE_URL = 'https://opensource-demo.orangehrmlive.com'
+        DEV_USERNAME = 'Admin'
+        DEV_PASSWORD = 'admin123'
+
+        QA_BASE_URL = 'https://opensource-demo.orangehrmlive.com'
+        QA_USERNAME = 'Admin'
+        QA_PASSWORD = 'admin123'
+
+        UAT_BASE_URL = 'https://opensource-demo.orangehrmlive.com'
+        UAT_USERNAME = 'Admin'
+        UAT_PASSWORD = 'admin123'
+
+        PROD_BASE_URL = 'https://opensource-demo.orangehrmlive.com'
+        PROD_USERNAME = 'Admin'
+        PROD_PASSWORD = 'admin123'
+
+        BROWSER = 'chromium'
+        HEADLESS = 'true'
+        SLOW_MO = '0'
+
+        SCREENSHOT_ON_FAILURE = 'true'
+        VIDEO_ON_FAILURE = 'true'
+        TRACE_ON_FAILURE = 'true'
     }
 
     stages {
@@ -18,6 +44,36 @@ pipeline {
             steps {
                 bat '''
                     "%PYTHON%" --version
+                '''
+            }
+        }
+
+        stage('Create Environment File') {
+            steps {
+                bat '''
+                    (
+                        echo TEST_ENV=%TEST_ENV%
+                        echo DEV_BASE_URL=%DEV_BASE_URL%
+                        echo DEV_USERNAME=%DEV_USERNAME%
+                        echo DEV_PASSWORD=%DEV_PASSWORD%
+                        echo QA_BASE_URL=%QA_BASE_URL%
+                        echo QA_USERNAME=%QA_USERNAME%
+                        echo QA_PASSWORD=%QA_PASSWORD%
+                        echo UAT_BASE_URL=%UAT_BASE_URL%
+                        echo UAT_USERNAME=%UAT_USERNAME%
+                        echo UAT_PASSWORD=%UAT_PASSWORD%
+                        echo PROD_BASE_URL=%PROD_BASE_URL%
+                        echo PROD_USERNAME=%PROD_USERNAME%
+                        echo PROD_PASSWORD=%PROD_PASSWORD%
+                        echo BROWSER=%BROWSER%
+                        echo HEADLESS=%HEADLESS%
+                        echo SLOW_MO=%SLOW_MO%
+                        echo SCREENSHOT_ON_FAILURE=%SCREENSHOT_ON_FAILURE%
+                        echo VIDEO_ON_FAILURE=%VIDEO_ON_FAILURE%
+                        echo TRACE_ON_FAILURE=%TRACE_ON_FAILURE%
+                    ) > .env
+
+                    echo Environment configuration created for Jenkins.
                 '''
             }
         }
@@ -60,6 +116,10 @@ pipeline {
     post {
         always {
             echo 'Jenkins test execution completed.'
+
+            bat '''
+                if exist .env del /q .env
+            '''
         }
 
         success {

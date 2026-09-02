@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        PYTHON = 'C:\\Users\\NEELGAGAN B R\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
         PYTHONUNBUFFERED = '1'
     }
 
@@ -13,11 +14,19 @@ pipeline {
             }
         }
 
+        stage('Check Python') {
+            steps {
+                bat '''
+                    "%PYTHON%" --version
+                '''
+            }
+        }
+
         stage('Setup Python Environment') {
             steps {
                 bat '''
-                    python --version
-                    python -m venv .jenkins-venv
+                    if exist .jenkins-venv rmdir /s /q .jenkins-venv
+                    "%PYTHON%" -m venv .jenkins-venv
                     .jenkins-venv\\Scripts\\python.exe -m pip install --upgrade pip
                 '''
             }

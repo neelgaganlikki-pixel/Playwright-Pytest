@@ -2,42 +2,47 @@ pipeline {
     agent any
 
     environment {
-        TEST_ENV = 'dev'
-        BROWSER = 'chromium'
-        HEADLESS = 'true'
+        PYTHONUNBUFFERED = '1'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://your-git-repo-url.git'
+                echo 'Checking out Playwright-Pytest project...'
             }
         }
 
-        stage('Setup Python') {
+        stage('Setup Python Environment') {
             steps {
                 bat '''
                     python --version
-                    python -m venv .venv
-                    .\.venv\Scripts\python.exe -m pip install --upgrade pip
+                    python -m venv .jenkins-venv
+                    .jenkins-venv\\Scripts\\python.exe -m pip install --upgrade pip
                 '''
             }
         }
 
-        stage('Install dependencies') {
+        stage('Install Dependencies') {
             steps {
                 bat '''
-                    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-                    .\.venv\Scripts\python.exe -m playwright install chromium
+                    .jenkins-venv\\Scripts\\python.exe -m pip install -r requirements.txt
                 '''
             }
         }
 
-        stage('Run tests') {
+        stage('Install Playwright Browsers') {
             steps {
                 bat '''
-                    mkdir reports
-                    .\.venv\Scripts\python.exe -m pytest tests -q --junitxml=reports\junit.xml
+                    .jenkins-venv\\Scripts\\python.exe -m playwright install chromium
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                bat '''
+                    .jenkins-venv\\Scripts\\python.exe -m pytest -v
                 '''
             }
         }
@@ -45,9 +50,15 @@ pipeline {
 
     post {
         always {
-            junit 'reports\\junit.xml'
-            archiveArtifacts artifacts: 'test-results/**', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
+            echo 'Jenkins test execution completed.'
+        }
+
+        success {
+            echo 'All Playwright-Pytest tests passed successfully.'
+        }
+
+        failure {
+            echo 'Playwright-Pytest execution failed. Check the console output.'
         }
     }
 }

@@ -1,0 +1,111 @@
+Analyze the existing OrangeHRM Playwright Python automation framework before making any changes.
+
+The framework uses:
+- Python
+- Playwright
+- pytest
+- pytest-playwright
+- Page Object Model (POM)
+- conftest.py fixtures
+- config_reader.py for environment configuration
+- JSON test data
+- Existing LoginPage and DashboardPage page objects
+
+I want to add automation for creating a Buzz post in OrangeHRM.
+
+IMPORTANT:
+Follow the existing project architecture and coding style.
+Do NOT create a standalone script.
+Do NOT put Playwright locators directly inside the test case.
+Follow the Page Object Model.
+
+Requirements:
+
+1. Analyze the existing framework first.
+2. Reuse the existing login fixtures, configuration, test data reader, and page fixture wherever applicable.
+3. Create a new page object:
+   pages/buzz_page.py
+
+4. The BuzzPage should contain:
+   - Buzz page locators
+   - Navigation to the Buzz module if required
+   - Post input/editor interaction
+   - Post button interaction
+   - Post creation validation
+   - Any other Buzz-specific UI interactions required for creating a post
+
+5. Create the test:
+   tests/buzz/BuzzpostTest.py
+
+6. The test class/name should be:
+   BuzzpostTest
+
+7. The test should:
+   - Use the existing Playwright page fixture
+   - Use the existing login mechanism/fixtures
+   - Navigate to the Buzz module
+   - Enter a test post
+   - Submit the post
+   - Verify that the post was successfully created
+
+8. Keep test logic separate from page implementation.
+
+9. Use Playwright's recommended locator strategies:
+   - get_by_role()
+   - get_by_label()
+   - get_by_placeholder()
+   - get_by_text()
+   - get_by_test_id()
+   - CSS only when necessary
+   - XPath only as a last resort
+
+10. Do NOT use page.wait_for_timeout().
+Use Playwright auto-waiting and expect() assertions.
+
+11. Do not hardcode:
+   - Base URL
+   - Environment configuration
+   - Credentials
+
+12. Reuse existing ConfigReader and .env configuration.
+
+13. If test data is required, add it to the existing test_data structure rather than hardcoding it inside the test.
+
+14. Do not unnecessarily modify existing files.
+
+15. Before creating new code, inspect:
+   - conftest.py
+   - config/config_reader.py
+   - pages/login_page.py
+   - pages/dashboard_page.py
+   - utils/test_data_reader.py
+   - test_data/users.json
+   - tests/login/test_login_logout.py
+
+16. Follow the existing naming and coding conventions.
+
+17. After implementation, show me:
+   - Files created
+   - Files modified
+   - Complete contents of every newly created/modified file
+   - Explanation of how the new Buzz test follows POM
+   - Exact pytest command to execute the test in headed mode
+
+18. Do not overwrite or break the existing login/logout tests.
+
+19. Run/validate the new test if the environment allows it.
+
+The final expected structure should be:
+
+pages/
+├── login_page.py
+├── dashboard_page.py
+└── buzz_page.py
+
+tests/
+├── login/
+│   └── test_login_logout.py
+└── buzz/
+    └── BuzzpostTest.py
+
+Follow the existing framework architecture rather than creating a new framework.

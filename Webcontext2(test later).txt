@@ -1,0 +1,304 @@
+I have an existing Playwright automation framework built using Python, pytest, and Page Object Model (POM).
+
+First, analyze the ENTIRE existing project structure and understand how the current framework works before making any changes.
+
+IMPORTANT:
+- Do NOT create a new framework.
+- Do NOT replace pytest with TestNG or unittest.
+- Do NOT change the existing POM architecture.
+- Do NOT unnecessarily rename existing files, classes, methods, fixtures, or folders.
+- Reuse the existing framework wherever possible.
+- Before modifying any file, inspect its current contents and understand its dependencies.
+- If a change is required, provide the COMPLETE replacement file, not just a code snippet.
+- Do not add duplicate fixtures or duplicate configuration.
+- Do not introduce unnecessary dependencies.
+
+CURRENT FRAMEWORK:
+- Python
+- Playwright
+- pytest
+- Page Object Model
+- conftest.py
+- pytest.ini
+- .env/configuration
+- test data reader
+- screenshot capture on failure
+
+I want to improve the pytest framework with the following capabilities.
+
+1. HEADED MODE
+Configure Playwright so tests can run with the browser visible.
+
+Use the existing pytest-playwright plugin approach.
+
+The browser should support:
+- headless=False
+- configurable slow_mo
+
+Do not manually create duplicate browser/context/page fixtures if pytest-playwright already provides them.
+
+Prefer using:
+
+@pytest.fixture(scope="session")
+def browser_type_launch_args():
+    return {
+        "headless": False,
+        "slow_mo": 500
+    }
+
+Make sure this does not break the existing page fixture or POM classes.
+
+2. PYTEST FIXTURES
+Review the existing conftest.py and improve fixtures where appropriate.
+
+Support:
+- function-level fixtures
+- session-level fixtures
+- login fixture
+- page objects
+- test data
+
+If useful, create a reusable logged-in fixture so tests such as BuzzpostTest do not repeat login steps.
+
+For example:
+
+@pytest.fixture
+def logged_in_page(page, login_page):
+    ...
+    return page
+
+But only implement this if it fits the existing project architecture.
+
+3. PYTEST MARKERS
+Add useful markers such as:
+
+@pytest.mark.smoke
+@pytest.mark.regression
+@pytest.mark.sanity
+
+Update pytest.ini correctly.
+
+I should be able to run:
+
+pytest -m smoke
+
+pytest -m regression
+
+pytest -m sanity
+
+Do not mark every test automatically. Apply markers logically to existing tests.
+
+4. PARAMETRIZATION
+Use pytest.mark.parametrize where multiple test data combinations are useful.
+
+This should be the pytest equivalent of TestNG DataProvider.
+
+Example:
+
+@pytest.mark.parametrize(
+    "username,password",
+    [
+        ("Admin", "admin123"),
+        ("Admin", "wrong123"),
+        ("wronguser", "wrong123")
+    ]
+)
+
+Do not hard-code test data if the existing framework already has a test data reader. Prefer the existing test-data mechanism.
+
+5. ASSERTIONS
+Review existing tests and make sure they use clear pytest assertions:
+
+assert actual == expected
+
+assert condition
+
+Do not replace existing meaningful assertions unnecessarily.
+
+6. SKIP AND XFAIL
+Use pytest skip and xfail correctly.
+
+Examples:
+
+@pytest.mark.skip(reason="Feature not implemented")
+
+@pytest.mark.xfail(reason="Known application defect")
+
+IMPORTANT:
+Do not add @pytest.mark.xfail just to make a failing test appear successful.
+
+If an existing test is XFAIL, identify why it is marked XFAIL and preserve it only if there is a legitimate reason.
+
+7. SCREENSHOTS ON FAILURE
+Keep the existing screenshot-on-failure functionality.
+
+If possible, improve it so that:
+- screenshots are saved under test-results/screenshots/
+- each screenshot has a unique test name
+- screenshots are only captured when a test fails
+- existing screenshot functionality is not duplicated
+
+8. HTML REPORT
+Add pytest-html if it is not already installed.
+
+Support:
+
+pytest --html=reports/report.html --self-contained-html
+
+Make sure the reports directory is created if required.
+
+Do not break normal pytest execution.
+
+9. PARALLEL EXECUTION
+If appropriate, add pytest-xdist support.
+
+The framework should support:
+
+pytest -n 4
+
+Do not force parallel execution by default.
+
+Tests should remain independent and should not rely on shared browser state.
+
+10. RETRY FAILED TESTS
+If a retry mechanism is useful, add an appropriate pytest plugin such as pytest-rerunfailures.
+
+Support something similar to:
+
+pytest --reruns 2
+
+Do not automatically retry every test unless explicitly requested from the command line.
+
+11. RUN FAILED TESTS
+Make sure standard pytest functionality works:
+
+pytest --lf
+
+pytest --ff
+
+pytest -x
+
+pytest -v
+
+12. ENVIRONMENT CONFIGURATION
+Review the existing config_reader.py, .env, and test_data_reader.py.
+
+Do NOT assume that test_data has an "env" attribute.
+
+Previously there was an error:
+
+AttributeError: 'TestDataReader' object has no attribute 'env'
+
+Do not introduce code such as:
+
+test_data.env
+
+unless the TestDataReader class actually provides that attribute.
+
+If environment selection is needed, use the existing config reader/environment mechanism.
+
+Ideally support something like:
+
+pytest --env=qa
+
+or another clean mechanism that fits the existing framework.
+
+Do not break the current configuration.
+
+13. LOGGING
+Review the existing framework and add useful logging only where it improves debugging.
+
+Logs should help identify:
+- test start
+- login
+- important page actions
+- failures
+- screenshots
+
+Do not fill the output with unnecessary logs.
+
+14. ALLURE
+If appropriate, prepare the framework so Allure reporting can be added.
+
+Do not make Allure mandatory if it requires unnecessary changes.
+
+If adding it, support:
+
+pytest --alluredir=allure-results
+
+15. PROJECT STRUCTURE
+Maintain the existing structure.
+
+Do not create unnecessary folders.
+
+Use the existing structure such as:
+
+pages/
+tests/
+config/
+utils/
+test-results/
+conftest.py
+pytest.ini
+
+Only add files when they are genuinely required.
+
+16. TEST EXECUTION
+After making the changes, verify that these commands are supported:
+
+pytest
+
+pytest -v
+
+pytest -m smoke
+
+pytest -m regression
+
+pytest -x
+
+pytest --lf
+
+pytest -n 4
+
+pytest --reruns 2
+
+pytest --html=reports/report.html --self-contained-html
+
+For Playwright headed execution, the browser should be visible.
+
+17. MOST IMPORTANT REQUIREMENT
+Do not blindly modify the framework.
+
+First:
+1. Inspect the complete project.
+2. Identify the current architecture.
+3. Identify existing fixtures.
+4. Identify existing pytest configuration.
+5. Identify how browser/page are currently created.
+6. Identify how configuration and test data are currently loaded.
+7. Identify existing markers and plugins.
+8. Identify any duplicate or conflicting fixtures.
+
+Then propose the changes.
+
+After that, make the changes while preserving the existing architecture.
+
+For every modified file:
+- Explain why it needs to change.
+- Show the complete final contents of the file.
+- Clearly mention any new dependency that needs to be installed.
+- Do not provide partial replacement code.
+
+Finally, give me the exact terminal commands to:
+1. Run all tests.
+2. Run tests in headed mode.
+3. Run smoke tests.
+4. Run regression tests.
+5. Run tests in parallel.
+6. Generate an HTML report.
+7. Run only failed tests.
+8. Stop after the first failure.
+
+The final framework should remain a clean:
+Python + Playwright + pytest + POM
+automation framework suitable for a real-world project and automation testing interviews.

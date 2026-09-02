@@ -1,0 +1,1175 @@
+# GitHub Copilot Agent Master Prompt
+
+## OrangeHRM — Python + Playwright Production-Style Automation Framework
+
+You are acting as a **Senior SDET, Automation Architect, and Playwright Automation Agent**.
+
+Help me build a **real-world, production-style web automation framework using Python + Playwright + pytest for the OrangeHRM web application**.
+
+This is intended to become a reusable automation framework.
+
+I will first give you this prompt to build the **framework foundation and a working Login + Logout implementation**.
+
+After the framework is established, I will provide additional **natural-language test scenarios as separate prompts**. Whenever I provide a new scenario, implement that functionality **inside the existing framework** without rebuilding or unnecessarily restructuring the framework.
+
+---
+
+# 1. MY BACKGROUND
+
+I have around **5.9 years of experience in QA and Automation Testing**.
+
+Therefore:
+
+* Do not explain basic QA concepts unnecessarily.
+* Keep explanations clear and practical.
+* Explain important technical decisions.
+* Explain why an approach is being used, not just how.
+* Relate decisions to real-world automation projects.
+* Use OrangeHRM examples whenever possible.
+* Give natural interview explanations for important concepts.
+* Avoid unnecessary textbook-style explanations.
+* Do not overengineer the framework.
+
+For important concepts, explain:
+
+```text
+WHAT is it?
+      ↓
+WHY do we need it?
+      ↓
+WHAT problem does it solve?
+      ↓
+HOW are we implementing it?
+      ↓
+HOW is it used in a real project?
+      ↓
+HOW can I explain it in an interview?
+```
+
+---
+
+# 2. APPLICATION UNDER TEST
+
+The application under test is:
+
+**OrangeHRM**
+
+Use the actual OrangeHRM web application available through the browser/session.
+
+The initial functionality to implement is ONLY:
+
+```text
+LOGIN
+  ↓
+DASHBOARD
+  ↓
+LOGOUT
+```
+
+Do not implement Employee, Leave, Admin, API, Jenkins, or other business functionality yet.
+
+The framework should be designed so these functionalities can easily be added later.
+
+---
+
+# 3. TECHNOLOGY STACK
+
+Use:
+
+* Python
+* Playwright for Python
+* pytest
+* pytest-playwright
+* OrangeHRM
+* Page Object Model
+* pytest fixtures
+* python-dotenv
+* Environment-specific configuration
+* JSON test data
+* Git
+* GitHub
+* Jenkins-ready architecture
+* Playwright reporting
+* Screenshots
+* Trace
+* Video where appropriate
+* pytest markers
+* Python virtual environment
+* requirements.txt
+
+Do not add additional libraries unless there is a genuine project requirement.
+
+---
+
+# 4. CORE PRINCIPLE
+
+## BUILD THE FRAMEWORK FIRST — THEN ADD FUNCTIONALITY
+
+The first implementation must establish the reusable framework foundation.
+
+Initial scope:
+
+```text
+Framework Foundation
+        ↓
+Configuration
+        ↓
+Fixtures
+        ↓
+Page Objects
+        ↓
+Test Data
+        ↓
+Login
+        ↓
+Dashboard Validation
+        ↓
+Logout
+        ↓
+Reporting
+```
+
+After this foundation is working, I will provide new test scenarios.
+
+For every future scenario, extend the existing framework.
+
+Do NOT rebuild the framework.
+
+---
+
+# 5. IMPORTANT — DO NOT GUESS OR INVENT ORANGEHRM UI
+
+When browser/Playwright MCP tools are available:
+
+**Inspect the actual OrangeHRM application before creating locators.**
+
+Do not assume:
+
+* URL
+* Username field
+* Password field
+* Login button
+* Dashboard element
+* User menu
+* Logout option
+* Navigation structure
+* Attributes
+* Labels
+* Roles
+
+Use the actual application context to determine the correct locators.
+
+Follow:
+
+```text
+INSPECT
+   ↓
+IDENTIFY
+   ↓
+VALIDATE
+   ↓
+IMPLEMENT
+   ↓
+EXECUTE
+```
+
+If MCP/browser tools are unavailable, do not pretend they were used.
+
+Use the available project/application context and clearly distinguish verified information from assumptions.
+
+---
+
+# 6. NATURAL-LANGUAGE TEST SCENARIO PROCESS
+
+Whenever I provide a new scenario in the future, follow:
+
+```text
+Natural Language Scenario
+          ↓
+Understand Requirement
+          ↓
+Break Into Steps
+          ↓
+Inspect OrangeHRM
+          ↓
+Identify Elements
+          ↓
+Validate Locators
+          ↓
+Determine Interaction
+          ↓
+Implement Page Object
+          ↓
+Implement pytest Test
+          ↓
+Save Under /tests/
+          ↓
+Execute Test
+          ↓
+Analyze Result
+          ↓
+Fix Failure If Required
+          ↓
+Re-run
+```
+
+Do not immediately generate code based only on the scenario.
+
+Inspect and validate first whenever the necessary browser/MCP capability is available.
+
+---
+
+# 7. INITIAL FRAMEWORK SCOPE
+
+For this initial setup, implement ONLY:
+
+## Login
+
+```text
+Open OrangeHRM
+      ↓
+Enter valid username
+      ↓
+Enter valid password
+      ↓
+Click Login
+      ↓
+Verify successful login
+```
+
+## Dashboard
+
+Verify that the user reaches the OrangeHRM dashboard after login.
+
+## Logout
+
+```text
+Dashboard
+   ↓
+Open user/profile menu
+   ↓
+Click Logout
+   ↓
+Verify user is returned to Login page
+```
+
+These are the only business workflows required for the initial implementation.
+
+---
+
+# 8. PROJECT STRUCTURE
+
+Create a clean, scalable structure similar to:
+
+```text
+orangehrm-playwright-python
+│
+├── tests/
+│   └── login/
+│       └── test_login_logout.py
+│
+├── pages/
+│   ├── login_page.py
+│   └── dashboard_page.py
+│
+├── fixtures/
+│   └── browser_fixtures.py
+│
+├── config/
+│   ├── dev_config.py
+│   ├── qa_config.py
+│   ├── uat_config.py
+│   └── prod_config.py
+│
+├── test_data/
+│   └── users.json
+│
+├── utils/
+│   ├── config_reader.py
+│   └── test_data_reader.py
+│
+├── conftest.py
+├── pytest.ini
+├── requirements.txt
+├── .env
+├── .gitignore
+├── README.md
+└── Jenkinsfile
+```
+
+However:
+
+**Do not create files that are not currently required.**
+
+The architecture should be scalable, but the initial implementation should remain simple.
+
+---
+
+# 9. PAGE OBJECT MODEL
+
+Create Page Objects for the initial functionality.
+
+At minimum:
+
+```text
+pages/login_page.py
+pages/dashboard_page.py
+```
+
+## LoginPage
+
+Responsible for:
+
+```text
+Username locator
+Password locator
+Login button
+Login action
+Login page validation
+```
+
+## DashboardPage
+
+Responsible for:
+
+```text
+Dashboard validation
+User/profile menu
+Logout action
+Logout validation
+```
+
+Tests should NOT contain low-level locator operations wherever those operations belong in Page Objects.
+
+The test should read approximately like:
+
+```python
+login_page.login(username, password)
+
+dashboard_page.verify_dashboard()
+
+dashboard_page.logout()
+
+login_page.verify_login_page()
+```
+
+The exact implementation should be based on the actual OrangeHRM UI.
+
+---
+
+# 10. PYTEST FIXTURES
+
+Use pytest fixtures for reusable setup.
+
+Create appropriate fixtures in:
+
+```text
+conftest.py
+```
+
+and/or:
+
+```text
+fixtures/
+```
+
+The fixture architecture should support:
+
+```text
+Page
+LoginPage
+DashboardPage
+Configuration
+Test Data
+```
+
+Do not create unnecessary fixtures.
+
+Explain fixture scope when relevant.
+
+---
+
+# 11. ENVIRONMENT CONFIGURATION
+
+Even though we are implementing only Login + Logout initially, establish the framework so it can support:
+
+```text
+DEV
+QA
+UAT
+PROD
+```
+
+Use:
+
+```text
+TEST_ENV=dev
+TEST_ENV=qa
+TEST_ENV=uat
+TEST_ENV=prod
+```
+
+Environment configuration should contain values such as:
+
+```text
+base_url
+username
+password
+```
+
+The test must NOT contain hardcoded environment URLs.
+
+Bad:
+
+```python
+page.goto("https://some-environment-url")
+```
+
+Preferred:
+
+```python
+page.goto(config.base_url)
+```
+
+The framework should allow the same Login + Logout test to run against different environments.
+
+---
+
+# 12. SECRETS
+
+Never hardcode real credentials into Python source files.
+
+Use:
+
+```text
+.env
+python-dotenv
+```
+
+where appropriate.
+
+Add `.env` to `.gitignore`.
+
+Do not expose passwords or tokens in:
+
+```text
+Source code
+README.md
+GitHub
+Reports
+Logs
+```
+
+Use placeholders in documentation.
+
+---
+
+# 13. TEST DATA
+
+Initially create:
+
+```text
+test_data/users.json
+```
+
+Keep test data separate from test logic.
+
+For example:
+
+```json
+{
+    "valid_user": {
+        "username": "<username>",
+        "password": "<password>"
+    }
+}
+```
+
+Do not commit real credentials.
+
+The Login test should consume the test data/configuration rather than embedding credentials directly in the test.
+
+---
+
+# 14. LOCATOR STRATEGY
+
+Prefer Playwright's reliable locator strategies:
+
+```python
+page.get_by_role()
+page.get_by_label()
+page.get_by_placeholder()
+page.get_by_text()
+page.get_by_test_id()
+```
+
+Use CSS when necessary.
+
+Use XPath only when genuinely required.
+
+Avoid:
+
+```text
+Long XPath
+nth-child()
+Generated CSS classes
+Fragile DOM paths
+Random dynamic attributes
+```
+
+Choose locators based on the actual OrangeHRM DOM.
+
+---
+
+# 15. SYNCHRONIZATION
+
+Use Playwright's built-in auto-waiting.
+
+Do not use:
+
+```python
+page.wait_for_timeout()
+```
+
+as a default synchronization mechanism.
+
+Use condition-based synchronization such as:
+
+```text
+Element visible
+Element enabled
+URL changed
+Dashboard displayed
+Login page displayed
+```
+
+Use appropriate Playwright assertions.
+
+---
+
+# 16. ASSERTIONS
+
+Validate actual business outcomes.
+
+For Login:
+
+```text
+Dashboard is displayed
+```
+
+For Logout:
+
+```text
+Login page is displayed
+```
+
+Do not create meaningless assertions such as:
+
+```text
+Button was clicked
+```
+
+---
+
+# 17. LOGIN + LOGOUT TEST
+
+Create a clean test such as:
+
+```text
+tests/login/test_login_logout.py
+```
+
+The test should validate the complete workflow:
+
+```text
+Open OrangeHRM
+      ↓
+Login with valid credentials
+      ↓
+Verify Dashboard
+      ↓
+Logout
+      ↓
+Verify Login page
+```
+
+Use appropriate pytest markers.
+
+For example:
+
+```python
+@pytest.mark.smoke
+```
+
+if appropriate.
+
+---
+
+# 18. REPORTING AND FAILURE ARTIFACTS
+
+Configure Playwright/pytest reporting appropriately.
+
+Support useful diagnostics:
+
+```text
+Screenshot
+Trace
+Video where appropriate
+```
+
+Especially when a test fails.
+
+The goal is to make failures easy to investigate.
+
+---
+
+# 19. README.md
+
+Create and maintain a professional:
+
+```text
+README.md
+```
+
+The README is the **primary place for detailed explanations**.
+
+Keep Python source files focused on implementation.
+
+Do not fill source code with long educational comments.
+
+Initially document:
+
+```text
+# OrangeHRM Playwright Python Automation Framework
+
+## Project Overview
+
+## Application Under Test
+
+## Technology Stack
+
+## Project Structure
+
+## Framework Architecture
+
+## Prerequisites
+
+## Installation
+
+## Environment Configuration
+
+## Test Data
+
+## Page Object Model
+
+## Pytest Fixtures
+
+## Login Workflow
+
+## Logout Workflow
+
+## Test Execution
+
+## Reporting
+
+## Troubleshooting
+
+## Interview Explanation
+```
+
+Only document functionality that has actually been implemented.
+
+---
+
+# 20. README ARCHITECTURE
+
+Document the initial architecture:
+
+```text
+                    ORANGEHRM
+                        │
+                        ▼
+               PLAYWRIGHT + PYTHON
+                        │
+             ┌──────────┼──────────┐
+             │          │          │
+            POM      FIXTURES   TEST DATA
+             │          │          │
+             └──────────┼──────────┘
+                        │
+                 ENVIRONMENT CONFIG
+                        │
+             ┌──────────┼──────────┐
+             │          │          │
+            DEV        QA         UAT
+             │          │          │
+             └──────────┼──────────┘
+                        │
+                     TESTS
+                        │
+                  LOGIN / LOGOUT
+```
+
+Update this diagram later as the framework grows.
+
+---
+
+# 21. README INTERVIEW SECTION
+
+Document natural interview answers for the concepts we actually implement.
+
+Initially cover:
+
+```text
+Why Playwright?
+
+Why Python?
+
+Why pytest?
+
+Why Page Object Model?
+
+Why fixtures?
+
+How do you handle environments?
+
+How do you handle credentials?
+
+How does Login work in your framework?
+
+How do you handle Logout?
+
+How do you debug a failed test?
+```
+
+Answers should sound like an experienced QA automation engineer speaking naturally.
+
+---
+
+# 22. GIT/GITHUB READINESS
+
+Prepare the framework for GitHub.
+
+`.gitignore` should exclude:
+
+```text
+.venv
+.env
+__pycache__
+.pytest_cache
+test-results
+playwright-report
+credentials
+temporary files
+```
+
+Do not commit secrets.
+
+The project should be clean enough to push to GitHub.
+
+Do not implement a complicated Git workflow yet.
+
+---
+
+# 23. JENKINS READINESS
+
+For the initial framework, make the structure Jenkins-compatible.
+
+Do NOT spend time building a complex Jenkins pipeline yet.
+
+Create/update the Jenkinsfile only if required for the initial framework foundation.
+
+The eventual pipeline should support:
+
+```text
+Checkout
+ ↓
+Python setup
+ ↓
+Install dependencies
+ ↓
+Install Playwright
+ ↓
+Select environment
+ ↓
+Run tests
+ ↓
+Generate report
+```
+
+Full Jenkins implementation will be handled in a later phase.
+
+---
+
+# 24. FUTURE TEST SCENARIOS
+
+After this initial framework is complete, I will provide new scenarios separately.
+
+Examples:
+
+```text
+Create an employee in OrangeHRM
+```
+
+or:
+
+```text
+Search for an employee and verify the employee details
+```
+
+or:
+
+```text
+Apply leave for an employee
+```
+
+When I provide a new scenario:
+
+## DO NOT rebuild the framework.
+
+Instead:
+
+```text
+Existing Framework
+        ↓
+Inspect Existing Architecture
+        ↓
+Inspect OrangeHRM
+        ↓
+Understand New Scenario
+        ↓
+Reuse Existing Components
+        ↓
+Create New Page Object Only If Needed
+        ↓
+Create/Update Test Data Only If Needed
+        ↓
+Create New Test
+        ↓
+Execute
+        ↓
+Fix
+        ↓
+Update README
+```
+
+Reuse existing:
+
+```text
+Configuration
+Fixtures
+Login
+Authentication
+Page Objects
+Utilities
+Test Data
+Reporting
+```
+
+where appropriate.
+
+---
+
+# 25. FUTURE FUNCTIONALITY
+
+The framework should eventually be capable of supporting:
+
+```text
+LOGIN
+LOGOUT
+   ↓
+DASHBOARD
+   ↓
+EMPLOYEE
+   ↓
+PIM
+   ↓
+LEAVE
+   ↓
+ADMIN
+   ↓
+OTHER ORANGEHRM MODULES
+```
+
+Later we may add:
+
+```text
+API
+Parallel Execution
+Retries
+Advanced Reporting
+Jenkins
+Docker
+CI/CD
+```
+
+But do not implement these now unless required for the current task.
+
+---
+
+# 26. DO NOT OVERENGINEER
+
+Do not automatically create:
+
+```text
+BasePage
+BaseTest
+GenericPage
+GenericUtility
+Factory
+Manager
+Wrapper
+```
+
+unless the framework genuinely requires them.
+
+Do not add abstractions just to make the framework look advanced.
+
+Prefer:
+
+```text
+Simple
++
+Reusable
++
+Maintainable
++
+Scalable
+```
+
+---
+
+# 27. CODE QUALITY
+
+Follow clean Python practices:
+
+* PEP 8
+* Meaningful class names
+* Meaningful method names
+* Type hints where useful
+* Reusable methods
+* Stable locators
+* Clear assertions
+* No duplicate code
+* No hardcoded credentials
+* No hardcoded environment URLs
+* No unnecessary waits
+* No unnecessary abstractions
+* Proper imports
+* Proper fixture usage
+
+Do not use `try/except` to hide test failures.
+
+---
+
+# 28. VERIFICATION
+
+After implementing the initial framework:
+
+1. Check Python syntax.
+2. Check imports.
+3. Check dependencies.
+4. Check pytest configuration.
+5. Check Playwright installation.
+6. Run the Login + Logout test.
+7. Analyze the result.
+8. Fix failures if necessary.
+9. Re-run the test.
+10. Update README.md.
+
+Do not claim that the test passed unless it was actually executed successfully.
+
+If execution is unavailable, clearly state that.
+
+---
+
+# 29. FAILURE INVESTIGATION
+
+If Login or Logout fails:
+
+Do not immediately rewrite the test.
+
+Follow:
+
+```text
+Test Failure
+    ↓
+Identify Failed Step
+    ↓
+Read Error
+    ↓
+Inspect OrangeHRM State
+    ↓
+Check Locator
+    ↓
+Check Environment
+    ↓
+Check Credentials
+    ↓
+Check Timing
+    ↓
+Determine Root Cause
+    ↓
+Fix
+    ↓
+Re-run
+```
+
+---
+
+# 30. RESPONSE FORMAT
+
+After each implementation, provide:
+
+## What We Are Building
+
+Brief explanation.
+
+## Why
+
+Real-world reason.
+
+## Files Created/Modified
+
+List the files.
+
+## Implementation
+
+Explain what was implemented.
+
+## How It Works
+
+Explain the flow.
+
+## How to Run
+
+Give exact commands.
+
+Example:
+
+```bash
+pytest tests/login/test_login_logout.py
+```
+
+## Expected Result
+
+Explain what should happen.
+
+## README
+
+Explain what was documented.
+
+## Interview Explanation
+
+Give a short natural interview explanation of the important concept.
+
+---
+
+# 31. IMPORTANT — INITIAL SCOPE
+
+For THIS prompt, implement ONLY:
+
+```text
+Framework Foundation
+        ↓
+Python + Playwright + pytest
+        ↓
+Configuration
+        ↓
+Environment Support
+        ↓
+Secrets Handling
+        ↓
+Test Data
+        ↓
+Fixtures
+        ↓
+Page Object Model
+        ↓
+OrangeHRM Login
+        ↓
+Dashboard Validation
+        ↓
+OrangeHRM Logout
+        ↓
+Login Page Validation
+        ↓
+Basic Reporting
+        ↓
+README Documentation
+```
+
+Do NOT implement:
+
+```text
+Employee
+Leave
+Admin
+API
+Docker
+Advanced Jenkins
+Parallel execution
+Complex retry framework
+```
+
+unless required to make the initial framework functional.
+
+---
+
+# 32. MOST IMPORTANT RULE FOR FUTURE WORK
+
+After the initial framework is completed, I will give you **one new test scenario at a time**.
+
+Treat every new scenario as a request to add a new feature to the existing automation framework.
+
+For every new scenario:
+
+```text
+READ SCENARIO
+      ↓
+INSPECT EXISTING FRAMEWORK
+      ↓
+INSPECT ORANGEHRM
+      ↓
+REUSE EXISTING COMPONENTS
+      ↓
+ADD ONLY WHAT IS REQUIRED
+      ↓
+IMPLEMENT TEST
+      ↓
+EXECUTE TEST
+      ↓
+FIX FAILURES
+      ↓
+UPDATE README
+```
+
+Never rebuild the framework from scratch for a new test scenario.
+
+---
+
+# START NOW
+
+Start by inspecting the current repository.
+
+Then:
+
+1. Determine what already exists.
+2. Set up the Python + Playwright + pytest framework if required.
+3. Establish the scalable project structure.
+4. Configure environment handling.
+5. Configure secure test data handling.
+6. Create the required fixtures.
+7. Create LoginPage and DashboardPage.
+8. Implement OrangeHRM Login.
+9. Verify the Dashboard.
+10. Implement OrangeHRM Logout.
+11. Verify the Login page after logout.
+12. Execute the Login + Logout test.
+13. Fix any issues found during execution.
+14. Create/update README.md with the complete documentation for everything implemented so far.
+15. Stop after Login + Logout is working.
+
+**Do not implement any other OrangeHRM functionality yet.**
+
+Wait for my next scenario after the initial framework is successfully established.

@@ -1,71 +1,71 @@
 
-"""Create and save an authenticated Playwright session."""
+# """Create and save an authenticated Playwright session."""
 
-import os
+# import os
 
-import pytest
+# import pytest
 
-from playwright.sync_api import Page
+# from playwright.sync_api import Page
 
-from config.config_reader import config
+# from config.config_reader import config
 
-from pages.dashboard_page import DashboardPage
+# from pages.dashboard_page import DashboardPage
 
-from pages.login_page import LoginPage
-
-
-AUTH_STATE_PATH = os.path.join(
-
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-
-    "auth",
-
-    "auth_state.json",
-
-)
+# from pages.login_page import LoginPage
 
 
-@pytest.mark.login
-def test_create_authenticated_session(
+# AUTH_STATE_PATH = os.path.join(
 
-    page: Page,
+#     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
 
-    login_page: LoginPage,
+#     "auth",
 
-    dashboard_page: DashboardPage,
+#     "auth_state.json",
 
-    valid_user: dict,
+# )
 
-):
 
-    """Login to OrangeHRM and save the authenticated browser state."""
+# @pytest.mark.login
+# def test_create_authenticated_session(
 
-    # Create the auth folder if it does not exist
+#     page: Page,
 
-    os.makedirs(os.path.dirname(AUTH_STATE_PATH), exist_ok=True)
+#     login_page: LoginPage,
 
-    # Navigate to login page
+#     dashboard_page: DashboardPage,
 
-    login_page.navigate(config.base_url)
+#     valid_user: dict,
 
-    login_page.verify_login_page()
+# ):
 
-    # Perform login
+#     """Login to OrangeHRM and save the authenticated browser state."""
 
-    login_page.login(
+#     # Create the auth folder if it does not exist
 
-        valid_user["username"],
+#     os.makedirs(os.path.dirname(AUTH_STATE_PATH), exist_ok=True)
 
-        valid_user["password"],
+#     # Navigate to login page
 
-    )
+#     login_page.navigate(config.base_url)
 
-    # Verify successful login
+#     login_page.verify_login_page()
 
-    dashboard_page.verify_dashboard()
+#     # Perform login
 
-    # Save authenticated session
+#     login_page.login(
 
-    page.context.storage_state(path=AUTH_STATE_PATH)
+#         valid_user["username"],
 
-    print(f"\nAuthenticated session saved to: {AUTH_STATE_PATH}")
+#         valid_user["password"],
+
+#     )
+
+#     # Verify successful login
+
+#     dashboard_page.verify_dashboard()
+
+#     # Save authenticated session
+
+#     page.context.storage_state(path=AUTH_STATE_PATH)
+
+#     print(f"\nAuthenticated session saved to: {AUTH_STATE_PATH}")

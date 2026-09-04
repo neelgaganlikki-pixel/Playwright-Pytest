@@ -1,0 +1,11 @@
+{
+  "vacancy": {
+    "name": "Tester",
+    "job_title": "QA Engineer",
+    "description": "Automation testing vacancy created using Playwright",
+    "hiring_manager": "signed in user whoever is signed in",
+    "number_of_positions": 11,
+    "active": true,
+    "publish": true
+  }
+}

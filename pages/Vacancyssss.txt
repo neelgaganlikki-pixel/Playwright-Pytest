@@ -1,0 +1,15 @@
+Run the orangehrm website and log in with valid credentials. Navigate to the "Recruitment" section and click on "Vacancies". Click on the "Add" button to create a new vacancy. Fill in the required fields such as vacancy name, job title, hiring manager, number of positions, and any other relevant information. Click on the "Save" button to create the vacancy.
+analyze all the locators used in the vacancy creation process and ensure they are correctly identifying the elements on the page. Use appropriate wait strategies to handle any asynchronous loading of elements. After filling in the vacancy details, click on the "Save" button and verify that a success message is displayed confirming the vacancy has been created. Additionally, check that the newly created vacancy appears in the list of vacancies. Finally, delete the created vacancy to maintain a clean state for future tests.
+
+u can acces the related files for vacancy creation and deletion in folder structure
+it shld appear like:
+login 
+click on recruitment
+click on vacancies
+add new vacancy
+fill in vacancy details
+click save  
+verify saved toast message
+click on vacancies again
+find the newly created vacancy in the list
+delete the newly created vacancy

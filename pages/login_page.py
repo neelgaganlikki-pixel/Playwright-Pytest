@@ -1,7 +1,9 @@
 """Login Page Object for OrangeHRM."""
 
 import re
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError, expect
+
+from config.config_reader import config
 
 
 class LoginPage:
@@ -23,6 +25,15 @@ class LoginPage:
         self.username_input.fill(username)
         self.password_input.fill(password)
         self.login_button.click()
+
+        # Persist the profile name only when authentication succeeds.
+        logged_in_user = self.page.locator(".oxd-userdropdown-name")
+        try:
+            logged_in_user.wait_for(state="visible", timeout=10000)
+        except PlaywrightTimeoutError:
+            return
+
+        config.save_logged_in_username(logged_in_user.inner_text().strip())
     
     def verify_login_page(self) -> None:
         """Verify login page is displayed."""

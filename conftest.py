@@ -62,7 +62,7 @@ def browser_type_launch_args():
     """Configure launcher args for a visible, controllable browser session."""
 
     return {
-        "headless": False,
+        "headless": True,
         "slow_mo": int(
             os.getenv(
                 "SLOW_MO",

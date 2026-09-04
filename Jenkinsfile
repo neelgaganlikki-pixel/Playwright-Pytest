@@ -104,28 +104,10 @@ pipeline {
             }
         }
 
-        stage('Create Authentication State') {
-            steps {
-                bat '''
-                    if exist auth rmdir /s /q auth
-                    mkdir auth
-
-                    .jenkins-venv\\Scripts\\python.exe -m pytest tests/login/test_auth_setup.py -v -s
-
-                    if not exist auth\\auth_state.json (
-                        echo ERROR: Authentication state was not created.
-                        exit /b 1
-                    )
-
-                    echo Authentication state created successfully.
-                '''
-            }
-        }
-
         stage('Run Tests') {
             steps {
                 bat '''
-                    .jenkins-venv\\Scripts\\python.exe -m pytest -v
+                    .jenkins-venv\\Scripts\\python.exe -m pytest tests/buzz tests/vacancy -v -s
                 '''
             }
         }

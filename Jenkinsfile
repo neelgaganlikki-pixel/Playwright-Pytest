@@ -106,9 +106,16 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                bat '''
-                    .jenkins-venv\\Scripts\\python.exe -m pytest tests/buzz tests/vacancy -v -s --junitxml=test-results\\pytest-results.xml
-                '''
+                catchError(
+                    buildResult: 'FAILURE',
+                    stageResult: 'FAILURE'
+                ) {
+                    bat '''
+                        if not exist test-results mkdir test-results
+
+                        .jenkins-venv\\Scripts\\python.exe -m pytest tests/login tests/buzz tests/vacancy -v -s --junitxml=test-results\\pytest-results.xml
+                    '''
+                }
             }
         }
 
@@ -117,10 +124,49 @@ pipeline {
                 bat '''
                     echo.
                     echo ==========================================
-                    echo           PLAYWRIGHT TEST SUMMARY
+                    echo       PLAYWRIGHT TEST SUMMARY
                     echo ==========================================
 
-                    powershell -Command "$xml = [xml](Get-Content 'test-results\\pytest-results.xml'); $tests = $xml.testsuites.testsuite; $total = ($tests | Measure-Object -Property tests -Sum).Sum; $failures = ($tests | Measure-Object -Property failures -Sum).Sum; $errors = ($tests | Measure-Object -Property errors -Sum).Sum; $skipped = ($tests | Measure-Object -Property skipped -Sum).Sum; $passed = $total - $failures - $errors - $skipped; Write-Host ('Total Tests : ' + $total); Write-Host ('Passed      : ' + $passed); Write-Host ('Failed      : ' + ($failures + $errors)); Write-Host ('Skipped     : ' + $skipped); Write-Host '=========================================='"
+                    powershell -NoProfile -Command ^
+                    "$xml = [xml](Get-Content 'test-results\\pytest-results.xml'); ^
+                    $testCases = @($xml.testsuites.testsuite.testcase); ^
+                    ^
+                    $loginTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]login' }); ^
+                    $buzzTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]buzz' }); ^
+                    $vacancyTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]vacancy' }); ^
+                    ^
+                    function Get-ModuleStatus($tests) { ^
+                        if ($tests.Count -eq 0) { return 'NOT RUN' }; ^
+                        $failed = @($tests | Where-Object { $_.failure -or $_.error }); ^
+                        $skipped = @($tests | Where-Object { $_.skipped }); ^
+                        if ($failed.Count -gt 0) { return 'FAILED' }; ^
+                        if ($skipped.Count -eq $tests.Count) { return 'SKIPPED' }; ^
+                        return 'PASSED'; ^
+                    }; ^
+                    ^
+                    $loginStatus = Get-ModuleStatus $loginTests; ^
+                    $buzzStatus = Get-ModuleStatus $buzzTests; ^
+                    $vacancyStatus = Get-ModuleStatus $vacancyTests; ^
+                    ^
+                    Write-Host ('Login       -> ' + $loginStatus); ^
+                    Write-Host ('Buzz        -> ' + $buzzStatus); ^
+                    Write-Host ('Vacancy     -> ' + $vacancyStatus); ^
+                    Write-Host ''; ^
+                    Write-Host '=========================================='; ^
+                    Write-Host '       PLAYWRIGHT TEST SUMMARY'; ^
+                    Write-Host '=========================================='; ^
+                    ^
+                    $moduleStatuses = @($loginStatus, $buzzStatus, $vacancyStatus); ^
+                    $totalModules = 3; ^
+                    $passedModules = @($moduleStatuses | Where-Object { $_ -eq 'PASSED' }).Count; ^
+                    $failedModules = @($moduleStatuses | Where-Object { $_ -eq 'FAILED' }).Count; ^
+                    $skippedModules = @($moduleStatuses | Where-Object { $_ -eq 'SKIPPED' }).Count; ^
+                    ^
+                    Write-Host ('Total Tests : ' + $totalModules); ^
+                    Write-Host ('Passed      : ' + $passedModules); ^
+                    Write-Host ('Failed      : ' + $failedModules); ^
+                    Write-Host ('Skipped     : ' + $skippedModules); ^
+                    Write-Host '=========================================='"
                 '''
             }
         }
@@ -136,7 +182,7 @@ pipeline {
         }
 
         success {
-            echo 'All Playwright-Pytest tests passed successfully.'
+            echo 'All Playwright-Pytest test areas passed successfully.'
         }
 
         failure {

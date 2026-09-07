@@ -23,47 +23,84 @@ class BuzzPage:
             / "buzz_post_output.txt"
         )
 
-        self.buzz_nav_link = page.get_by_role("link", name="Buzz")
-        self.buzz_header = page.get_by_role("heading", name="Buzz")
+        self.buzz_nav_link = page.get_by_role(
+            "link",
+            name="Buzz"
+        )
 
-        self.post_editor = page.locator(
-            "textarea, "
-            "[contenteditable='true'], "
-            "[role='textbox'], "
-            "[placeholder*='post'], "
-            "[placeholder*='message'], "
-            "[placeholder*='share']"
-        ).first
+        self.buzz_header = page.get_by_role(
+            "heading",
+            name="Buzz"
+        )
 
-        self.post_button = (
-            page.locator("button")
-            .filter(has_text="Post")
-            .first
+        self.post_editor = page.get_by_role(
+            "textbox",
+            name="What's on your mind?"
+        )
+
+        self.post_button = page.get_by_role(
+            "button",
+            name="Post",
+            exact=True
         )
 
     def open_buzz(self) -> None:
         """Navigate to the Buzz module using the application URL."""
 
+        print("Opening Buzz module...")
+
         self.page.goto(
-            f"{config.base_url}/web/index.php/buzz/viewBuzz"
+            f"{config.base_url}/web/index.php/buzz/viewBuzz",
+            wait_until="domcontentloaded"
         )
 
         expect(self.page).to_have_url(
             re.compile(r".*/web/index\.php/buzz/.*")
         )
 
-        expect(self.page.locator("body")).to_contain_text("Buzz")
+        expect(self.buzz_header).to_be_visible(
+            timeout=10000
+        )
+
+        expect(self.post_editor).to_be_visible(
+            timeout=10000
+        )
+
+        print("Buzz module loaded successfully.")
 
     def create_post(self, post_text: str) -> None:
         """Type a post and submit it."""
 
-        expect(self.post_editor).to_be_visible()
+        print(f"Creating Buzz post: {post_text}")
+
+        expect(self.post_editor).to_be_visible(
+            timeout=10000
+        )
 
         self.post_editor.click()
+
         self.post_editor.fill(post_text)
 
-        expect(self.post_button).to_be_visible()
+        print("Buzz post text entered successfully.")
+
+        expect(self.post_button).to_be_visible(
+            timeout=10000
+        )
+
+        expect(self.post_button).to_be_enabled(
+            timeout=10000
+        )
+
+        print("Post button is visible and enabled.")
+
         self.post_button.click()
+
+        print("Post button clicked.")
+
+        # Wait for the application to process the post.
+        self.page.wait_for_timeout(2000)
+
+        print("Waiting for Buzz feed to update...")
 
     def save_post_to_file(self, post_text: str) -> None:
         """Persist the posted message in a TXT file inside the buzz folder."""
@@ -85,15 +122,60 @@ class BuzzPage:
     def verify_post_created(self, expected_post: str) -> None:
         """Validate the new post appears in the Buzz feed."""
 
+        print(
+            f"Verifying Buzz post: {expected_post}"
+        )
+
         post = self.page.get_by_text(
             expected_post,
             exact=True
         ).first
 
-        expect(post).to_be_visible(timeout=10000)
+        try:
+            expect(post).to_be_visible(
+                timeout=15000
+            )
 
-        print(
-            f"Buzz post created and verified: {expected_post}"
-        )
+            print(
+                f"Buzz post created and verified: {expected_post}"
+            )
 
-        self.save_post_to_file(expected_post)
+            self.save_post_to_file(
+                expected_post
+            )
+
+        except AssertionError:
+            print(
+                "Buzz post was not found in the feed."
+            )
+
+            print(
+                f"Expected post text: {expected_post}"
+            )
+
+            print(
+                f"Current URL: {self.page.url}"
+            )
+
+            # Give the feed additional time in case the application
+            # is still processing the post.
+            self.page.wait_for_timeout(2000)
+
+            # Retry the exact text once.
+            post = self.page.get_by_text(
+                expected_post,
+                exact=True
+            ).first
+
+            expect(post).to_be_visible(
+                timeout=10000
+            )
+
+            print(
+                f"Buzz post created and verified after retry: "
+                f"{expected_post}"
+            )
+
+            self.save_post_to_file(
+                expected_post
+            )

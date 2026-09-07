@@ -82,7 +82,9 @@ pipeline {
             steps {
                 bat '''
                     if exist .jenkins-venv rmdir /s /q .jenkins-venv
+
                     "%PYTHON%" -m venv .jenkins-venv
+
                     .jenkins-venv\\Scripts\\python.exe -m pip install --upgrade pip
                 '''
             }
@@ -127,46 +129,7 @@ pipeline {
                     echo       PLAYWRIGHT TEST SUMMARY
                     echo ==========================================
 
-                    powershell -NoProfile -Command ^
-                    "$xml = [xml](Get-Content 'test-results\\pytest-results.xml'); ^
-                    $testCases = @($xml.testsuites.testsuite.testcase); ^
-                    ^
-                    $loginTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]login' }); ^
-                    $buzzTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]buzz' }); ^
-                    $vacancyTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]vacancy' }); ^
-                    ^
-                    function Get-ModuleStatus($tests) { ^
-                        if ($tests.Count -eq 0) { return 'NOT RUN' }; ^
-                        $failed = @($tests | Where-Object { $_.failure -or $_.error }); ^
-                        $skipped = @($tests | Where-Object { $_.skipped }); ^
-                        if ($failed.Count -gt 0) { return 'FAILED' }; ^
-                        if ($skipped.Count -eq $tests.Count) { return 'SKIPPED' }; ^
-                        return 'PASSED'; ^
-                    }; ^
-                    ^
-                    $loginStatus = Get-ModuleStatus $loginTests; ^
-                    $buzzStatus = Get-ModuleStatus $buzzTests; ^
-                    $vacancyStatus = Get-ModuleStatus $vacancyTests; ^
-                    ^
-                    Write-Host ('Login       -> ' + $loginStatus); ^
-                    Write-Host ('Buzz        -> ' + $buzzStatus); ^
-                    Write-Host ('Vacancy     -> ' + $vacancyStatus); ^
-                    Write-Host ''; ^
-                    Write-Host '=========================================='; ^
-                    Write-Host '       PLAYWRIGHT TEST SUMMARY'; ^
-                    Write-Host '=========================================='; ^
-                    ^
-                    $moduleStatuses = @($loginStatus, $buzzStatus, $vacancyStatus); ^
-                    $totalModules = 3; ^
-                    $passedModules = @($moduleStatuses | Where-Object { $_ -eq 'PASSED' }).Count; ^
-                    $failedModules = @($moduleStatuses | Where-Object { $_ -eq 'FAILED' }).Count; ^
-                    $skippedModules = @($moduleStatuses | Where-Object { $_ -eq 'SKIPPED' }).Count; ^
-                    ^
-                    Write-Host ('Total Tests : ' + $totalModules); ^
-                    Write-Host ('Passed      : ' + $passedModules); ^
-                    Write-Host ('Failed      : ' + $failedModules); ^
-                    Write-Host ('Skipped     : ' + $skippedModules); ^
-                    Write-Host '=========================================='"
+                    powershell -NoProfile -Command "$xml = [xml](Get-Content 'test-results\\pytest-results.xml'); $testCases = @($xml.testsuites.testsuite.testcase); $loginTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]login' }); $buzzTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]buzz' }); $vacancyTests = @($testCases | Where-Object { $_.classname -match 'tests[\\\\/.]vacancy' }); $loginFailed = @($loginTests | Where-Object { $_.failure -or $_.error }).Count; $buzzFailed = @($buzzTests | Where-Object { $_.failure -or $_.error }).Count; $vacancyFailed = @($vacancyTests | Where-Object { $_.failure -or $_.error }).Count; $loginSkipped = @($loginTests | Where-Object { $_.skipped }).Count; $buzzSkipped = @($buzzTests | Where-Object { $_.skipped }).Count; $vacancySkipped = @($vacancyTests | Where-Object { $_.skipped }).Count; if ($loginTests.Count -eq 0) { $loginStatus = 'NOT RUN' } elseif ($loginFailed -gt 0) { $loginStatus = 'FAILED' } elseif ($loginSkipped -eq $loginTests.Count) { $loginStatus = 'SKIPPED' } else { $loginStatus = 'PASSED' }; if ($buzzTests.Count -eq 0) { $buzzStatus = 'NOT RUN' } elseif ($buzzFailed -gt 0) { $buzzStatus = 'FAILED' } elseif ($buzzSkipped -eq $buzzTests.Count) { $buzzStatus = 'SKIPPED' } else { $buzzStatus = 'PASSED' }; if ($vacancyTests.Count -eq 0) { $vacancyStatus = 'NOT RUN' } elseif ($vacancyFailed -gt 0) { $vacancyStatus = 'FAILED' } elseif ($vacancySkipped -eq $vacancyTests.Count) { $vacancyStatus = 'SKIPPED' } else { $vacancyStatus = 'PASSED' }; Write-Host ('Login       -> ' + $loginStatus); Write-Host ('Buzz        -> ' + $buzzStatus); Write-Host ('Vacancy     -> ' + $vacancyStatus); Write-Host ''; Write-Host '=========================================='; Write-Host '       PLAYWRIGHT TEST SUMMARY'; Write-Host '=========================================='; $statuses = @($loginStatus, $buzzStatus, $vacancyStatus); $passed = @($statuses | Where-Object { $_ -eq 'PASSED' }).Count; $failed = @($statuses | Where-Object { $_ -eq 'FAILED' }).Count; $skipped = @($statuses | Where-Object { $_ -eq 'SKIPPED' }).Count; Write-Host 'Total Tests : 3'; Write-Host ('Passed      : ' + $passed); Write-Host ('Failed      : ' + $failed); Write-Host ('Skipped     : ' + $skipped); Write-Host '=========================================='"
                 '''
             }
         }

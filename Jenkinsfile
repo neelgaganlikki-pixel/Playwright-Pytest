@@ -107,7 +107,20 @@ pipeline {
         stage('Run Tests') {
             steps {
                 bat '''
-                    .jenkins-venv\\Scripts\\python.exe -m pytest tests/buzz tests/vacancy -v -s
+                    .jenkins-venv\\Scripts\\python.exe -m pytest tests/buzz tests/vacancy -v -s --junitxml=test-results\\pytest-results.xml
+                '''
+            }
+        }
+
+        stage('Test Summary') {
+            steps {
+                bat '''
+                    echo.
+                    echo ==========================================
+                    echo           PLAYWRIGHT TEST SUMMARY
+                    echo ==========================================
+
+                    powershell -Command "$xml = [xml](Get-Content 'test-results\\pytest-results.xml'); $tests = $xml.testsuites.testsuite; $total = ($tests | Measure-Object -Property tests -Sum).Sum; $failures = ($tests | Measure-Object -Property failures -Sum).Sum; $errors = ($tests | Measure-Object -Property errors -Sum).Sum; $skipped = ($tests | Measure-Object -Property skipped -Sum).Sum; $passed = $total - $failures - $errors - $skipped; Write-Host ('Total Tests : ' + $total); Write-Host ('Passed      : ' + $passed); Write-Host ('Failed      : ' + ($failures + $errors)); Write-Host ('Skipped     : ' + $skipped); Write-Host '=========================================='"
                 '''
             }
         }

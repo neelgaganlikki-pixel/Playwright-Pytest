@@ -1,5 +1,5 @@
 
-"""Buzz post creation tests for OrangeHRM."""
+"""Buzz post creation and deletion tests for OrangeHRM."""
 
 import pytest
 
@@ -14,7 +14,7 @@ from utils.test_data_reader import test_data
 @pytest.mark.buzz
 class BuzzpostTest:
 
-    """Test suite for Buzz post creation."""
+    """Test suite for Buzz post creation and deletion."""
 
     def test_create_buzz_post(
 
@@ -24,7 +24,7 @@ class BuzzpostTest:
 
     ):
 
-        """Create a new Buzz post and verify it appears in the feed."""
+        """Create, verify, delete, and verify deletion of a Buzz post."""
 
         buzz_post = test_data.load_json("buzz.json")["post_text"]
 
@@ -37,5 +37,9 @@ class BuzzpostTest:
         buzz_page.create_post(buzz_post)
 
         buzz_page.verify_post_created(buzz_post)
+
+        buzz_page.delete_post(buzz_post)
+
+        buzz_page.verify_post_deleted(buzz_post)
 
         print(f"pytest buzz result: {buzz_post}")

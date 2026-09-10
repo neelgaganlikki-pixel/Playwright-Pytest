@@ -1,0 +1,33 @@
+{
+    "login": {
+        "username": "Admin",
+        "password": "admin123"
+    },
+    "employee": {
+        "first_name": "Emily",
+        "middle_name": "Robert",
+        "last_name": "Brown",
+        "employee_id": "8017",
+        "gender": "Female",
+        "other_id": "M4CV1O",
+        "driver_license_number": "WSEF45EB",
+        "license_expiry_date": "2029-05-19",
+        "nationality": "North Korean",
+        "marital_status": "Other",
+        "date_of_birth": "1989-04-07"
+    },
+    "employee_login": {
+        "create_login_details": true,
+        "username": "JkAuto69569",
+        "status": "Enabled",
+        "password": "JkAuto2026X9m4",
+        "confirm_password": "JkAuto2026X9m4"
+    },
+    "custom_fields": {
+        "blood_type": "B+",
+        "test_field": "YHTNP4M"
+    },
+    "photo": {
+        "path": "test_data/employee_photo.png"
+    }
+}

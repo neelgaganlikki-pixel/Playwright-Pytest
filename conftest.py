@@ -4,15 +4,20 @@ import logging
 import os
 
 import pytest
+
 from playwright.sync_api import Page
 
 from config.config_reader import config
+
 from pages.dashboard_page import DashboardPage
+
 from pages.login_page import LoginPage
+
 from utils.test_data_reader import test_data
 
 
 logger = logging.getLogger("orangehrm_tests")
+
 logger.setLevel(logging.INFO)
 
 if not logger.handlers:
@@ -51,7 +56,7 @@ def configure_environment(request):
 def browser_type_launch_args():
     """Configure the Playwright browser launcher."""
     return {
-        "headless": False,
+        "headless": True,
         "slow_mo": int(os.getenv("SLOW_MO", "0")),
     }
 
@@ -89,7 +94,6 @@ def logged_in_page(
 ) -> Page:
     """
     Login before each test and return an authenticated page.
-
     No saved Playwright authentication state is used.
     """
     logger.info("Starting login for test.")
@@ -146,6 +150,7 @@ def capture_screenshot_on_failure(request, page: Page):
 def pytest_runtest_makereport(item, call):
     """Store test result information on the test item."""
     outcome = yield
+
     rep = outcome.get_result()
 
     setattr(
@@ -161,4 +166,41 @@ def pytest_runtest_setup(item):
     logger.info(
         "Starting test: %s",
         item.nodeid,
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """
+    Control test execution order.
+
+    Priority:
+    1. Login
+    2. Buzz
+    3. Vacancy
+    4. Any other test modules alphabetically
+    """
+
+    def test_order(item):
+        nodeid = item.nodeid.replace("\\", "/").lower()
+
+        if "tests/login/test_auth_setup.py" in nodeid:
+            return 0
+
+        if "tests/login/test_login_logout.py" in nodeid:
+            return 1
+
+        if "tests/buzz/" in nodeid:
+            return 2
+
+        if "tests/vacancy/" in nodeid:
+            return 3
+
+        return 4, nodeid
+
+    items.sort(
+        key=lambda item: (
+            test_order(item)
+            if isinstance(test_order(item), tuple)
+            else (test_order(item), item.nodeid)
+        )
     )
